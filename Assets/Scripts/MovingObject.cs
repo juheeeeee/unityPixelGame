@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class MovingObject : MonoBehaviour
 {
+
+    private BoxCollider2D boxCollider;
+    public LayerMask layerMask;
+
     public float speed;
 
     private Vector3 vector; // save 3 factors
@@ -43,6 +47,7 @@ public class MovingObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        boxCollider = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>(); 
         // 유니티 프로그램에서 a라는 객체에(여기선 Character 1_1) 에니메이터를 생성했을 때,
         // 자동으로 컴포넌트(이것 저것 구성 요소들)가 생성된다. 이를 통제하기 위해 getComponent를 사용하여 해당 컴포넌트를 가져옴.
@@ -73,6 +78,19 @@ public class MovingObject : MonoBehaviour
 
             animator.SetFloat("DirX", vector.x);
             animator.SetFloat("DirY", vector.y);
+
+            RaycastHit2D hit;
+
+            Vector2 start = transform.position;
+            Vector2 end = start + new Vector2(vector.x * speed * walkCount, vector.y * speed * walkCount);
+
+            boxCollider.enabled = false;
+            hit = Physics2D.Linecast(start, end, layerMask);
+            boxCollider.enabled = true;
+
+            if (hit.transform != null)
+                break;
+
             animator.SetBool("Walking", true);
 
             while(currentWalkCount < walkCount){
